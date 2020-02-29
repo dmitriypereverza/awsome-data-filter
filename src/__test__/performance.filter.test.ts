@@ -1,11 +1,11 @@
 import {
   buildFilterToDataList,
   composeFilters,
-  filterPerformanceDecorator,
   LogicalOperator,
-  performanceReduce,
 } from "../index";
 import { equalProps } from "../rules/equalProps";
+import { filterPerformanceDecorator } from "../decorators/performanceDecorator";
+import { performanceReduce } from "../tools/performanceReduce";
 
 const buildFilter = buildFilterToDataList({
   elementHandler: ({

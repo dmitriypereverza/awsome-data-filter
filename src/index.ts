@@ -1,4 +1,4 @@
-import { path, curry, splitEvery } from "ramda";
+import { path, curry } from "ramda";
 
 export interface FilterFuncInterface {
   (filterValue: any, targetValue: any, _valueWhenNotFilter?: boolean):
@@ -19,6 +19,47 @@ export interface FieldFilterBuilderInterface {
 export enum LogicalOperator {
   AND,
   OR,
+}
+
+interface ToolsInterface
+  extends Pick<
+    BuildFilterInterface,
+    "getChildrenFunc" | "setChildrenFunc" | "setGroupsFunc" | "getGroupsFunc"
+  > {
+  isGroupFilterIsActive: boolean;
+  applyElementFilter: FilterFuncCarriedWithFilterInterface;
+  applyGroupFilter: FilterFuncCarriedWithFilterInterface;
+  getIsGroupFilterHaveMatch: (data) => boolean;
+}
+
+interface FilterHandlerInterface {
+  (params: { element: any; originalElement: any; tools: ToolsInterface }):
+    | any
+    | null;
+}
+
+export interface FilterFunctionInterface {
+  <GROUP, ELEMENTS>(
+    filter: any,
+    data: { groups: GROUP[]; elements: ELEMENTS[] },
+  ): {
+    groups: GROUP[];
+    elements: ELEMENTS[];
+  };
+}
+
+interface BuildFilterInterface {
+  getChildrenFunc: (group) => any[];
+  setChildrenFunc: (group, elements: any[]) => any;
+  setGroupsFunc: (group: any, groups: any[]) => any;
+  getGroupsFunc: (group: any) => any[];
+  elementFilterFunc?: FilterFuncInterface;
+  groupFilterFunc?: FilterFuncInterface;
+}
+
+interface StrategiesFilterInterfaceInterface {
+  groupHandler: FilterHandlerInterface;
+  elementHandler: FilterHandlerInterface;
 }
 
 export const fieldFilterBuilder = ({
@@ -70,50 +111,11 @@ export const customFieldFilter = ({
   });
 };
 
-interface ToolsInterface
-  extends Pick<
-    BuildFilterInterface,
-    "getChildrenFunc" | "setChildrenFunc" | "setGroupsFunc" | "getGroupsFunc"
-  > {
-  isGroupFilterIsActive: boolean;
-  applyElementFilter: FilterFuncCarriedWithFilterInterface;
-  applyGroupFilter: FilterFuncCarriedWithFilterInterface;
-  getIsGroupFilterHaveMatch: (data) => boolean;
-}
-
-interface FilterHandlerInterface {
-  (params: { element: any; originalElement: any; tools: ToolsInterface }):
-    | any
-    | null;
-}
-
-interface BuiltFilterFunction {
-  <GROUP, ELEMENTS>(
-    filter: any,
-    data: { groups: GROUP[]; elements: ELEMENTS[] },
-  ): {
-    groups: GROUP[];
-    elements: ELEMENTS[];
-  };
-}
-
-interface BuildFilterInterface {
-  getChildrenFunc: (group) => any[];
-  setChildrenFunc: (group, elements: any[]) => any;
-  setGroupsFunc: (group: any, groups: any[]) => any;
-  getGroupsFunc: (group: any) => any[];
-  elementFilterFunc?: FilterFuncInterface;
-  groupFilterFunc?: FilterFuncInterface;
-}
-
 export const buildFilterToDataList = curry(
   (
-    filterStrategy: {
-      groupHandler: FilterHandlerInterface;
-      elementHandler: FilterHandlerInterface;
-    },
+    filterStrategy: StrategiesFilterInterfaceInterface,
     traversalConfig: BuildFilterInterface,
-  ): BuiltFilterFunction => {
+  ): FilterFunctionInterface => {
     return (filter, data) => {
       const {
         getChildrenFunc,
@@ -124,29 +126,28 @@ export const buildFilterToDataList = curry(
         groupFilterFunc,
       } = traversalConfig;
 
-      const groupFilterFuncWithFilter = (filter =>
+      const applyGroupFilter = (filter =>
         groupFilterFunc
           ? (data, defaultValue = undefined) =>
               groupFilterFunc(filter, data, defaultValue)
           : null)(filter);
 
-      const elementFilterFuncWithFilter = (filter =>
+      const applyElementFilter = (filter =>
         elementFilterFunc
           ? (data, defaultValue = undefined) =>
               elementFilterFunc(filter, data, defaultValue)
           : null)(filter);
 
       const isGroupFilterIsActive =
-        groupFilterFuncWithFilter &&
-        groupFilterFuncWithFilter({}) !== undefined;
+        applyGroupFilter && applyGroupFilter({}) !== undefined;
 
       const getIsGroupFilterHaveMatch = group =>
-        groupFilterFuncWithFilter ? !!groupFilterFuncWithFilter(group) : false;
+        applyGroupFilter ? !!applyGroupFilter(group) : false;
 
       const tools: ToolsInterface = {
         isGroupFilterIsActive,
-        applyElementFilter: elementFilterFuncWithFilter,
-        applyGroupFilter: groupFilterFuncWithFilter,
+        applyElementFilter,
+        applyGroupFilter,
         getIsGroupFilterHaveMatch,
         getChildrenFunc,
         setChildrenFunc,
@@ -185,88 +186,3 @@ export const buildFilterToDataList = curry(
     };
   },
 );
-
-export function filterPerformanceDecorator(
-  func: BuiltFilterFunction,
-  elementChunkCount = 100,
-  groupChunkCount = 2,
-): (
-  filter: Parameters<BuiltFilterFunction>[0],
-  data: Parameters<BuiltFilterFunction>[1],
-) => Promise<ReturnType<BuiltFilterFunction>> {
-  return (filter, data) => {
-    return new Promise((resolve, reject) => {
-      try {
-        const elementsChunks = splitEvery(
-          elementChunkCount,
-          data.elements || [],
-        );
-        const groupsChunks = splitEvery(groupChunkCount, data.groups || []);
-
-        Promise.all([
-          performanceReduce(
-            elementsChunks,
-            (acc, elementsChunk) => {
-              const { elements } = func(filter, {
-                elements: elementsChunk,
-                groups: [],
-              });
-              acc = acc.concat(elements);
-              return acc;
-            },
-            [],
-          ),
-          performanceReduce(
-            groupsChunks,
-            (acc, groupChunk) => {
-              const { groups } = func(filter, {
-                elements: [],
-                groups: groupChunk,
-              });
-              acc = acc.concat(groups);
-              return acc;
-            },
-            [],
-          ),
-        ]).then(data => {
-          resolve({
-            elements: data[0],
-            groups: data[1],
-          });
-        });
-      } catch (e) {
-        reject(e);
-      }
-    });
-  };
-}
-
-export function performanceReduce<T, K>(
-  list: T[],
-  cb: (acc: K, data: T) => any,
-  initialValue: K,
-): Promise<K> {
-  const array = [...list];
-  let result: K = initialValue;
-
-  function recursiveCalculate(done) {
-    if (array.length === 0) {
-      done(result);
-      return;
-    }
-
-    setTimeout(() => {
-      const elem = array.pop();
-      result = cb(result, elem);
-      recursiveCalculate(done);
-    }, 0);
-  }
-
-  return new Promise<K>((resolve, reject) => {
-    try {
-      recursiveCalculate(resolve);
-    } catch (e) {
-      reject(e);
-    }
-  });
-}
