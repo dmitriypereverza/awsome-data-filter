@@ -3,28 +3,39 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "files": [
+    "src/**/*"
+  ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json"
   },
-  "author": "",
+  "author": "Dmitriy Pereverza disel920@gmail.com",
   "license": "ISC",
   "dependencies": {
     "ramda": "0.26.1"
   },
   "devDependencies": {
-    "@types/ramda": "0.26.6",
     "@types/jest": "^24.0.18",
+    "@types/ramda": "0.26.6",
     "eslint": "6.4.0",
-    "lint-staged": "9.2.5",
     "eslint-config-prettier": "6.3.0",
     "eslint-plugin-jest": "22.17.0",
     "eslint-plugin-prettier": "3.1.0",
-    "jest": "^24.9.0",
-    "prettier": "1.*",
-    "ts-jest": "^24.1.0",
-    "typescript": "3.7.*",
     "husky": "3.0.5",
-    "moment": "2.24.0"
+    "jest": "^24.9.0",
+    "lint-staged": "9.2.5",
+    "moment": "2.24.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^24.1.0",
+    "ts-loader": "^6.2.1",
+    "tslint": "^6.0.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
   },
   "husky": {
     "hooks": {

@@ -7,12 +7,12 @@ import {
 } from "../";
 
 export const targetDateBetweenFilterDates = ({
-  filterField,
-  targetField,
+  firstOperand,
+  secondOperand,
 }: Omit<FieldFilterBuilderInterface, "callback">): FilterFuncInterface => {
   return fieldFilterBuilder({
-    filterField,
-    targetField,
+    firstOperand: firstOperand,
+    secondOperand: secondOperand,
     callback: (
       filter: {
         valueFrom: Moment;

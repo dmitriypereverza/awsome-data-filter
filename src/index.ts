@@ -1,9 +1,13 @@
-import { path, curry } from "ramda";
+import { curry, path } from "ramda";
 
 export interface FilterFuncInterface {
-  (filterValue: any, targetValue: any, _valueWhenNotFilter?: boolean):
+  (filterValue: any, targetValue: any, _valueWhenRuleInvalid?: boolean):
     | boolean
     | undefined;
+}
+
+export interface ValueGetterInterface<T> {
+  (data: { filter?: any; element?: any }): T;
 }
 
 interface FilterFuncCarriedWithFilterInterface {
@@ -11,8 +15,8 @@ interface FilterFuncCarriedWithFilterInterface {
 }
 
 export interface FieldFilterBuilderInterface {
-  filterField: string;
-  targetField: string;
+  firstOperand: ValueGetterInterface<any>;
+  secondOperand: ValueGetterInterface<any>;
   callback: FilterFuncInterface;
 }
 
@@ -63,55 +67,31 @@ interface StrategiesFilterInterfaceInterface {
 }
 
 export const fieldFilterBuilder = ({
-  filterField,
-  targetField,
+  firstOperand,
+  secondOperand,
   callback,
 }: FieldFilterBuilderInterface): FilterFuncInterface => {
   return function(filter: any, data: any, _valueWhenNotFilter = undefined) {
-    const filterValue = path(filterField.split("."), filter);
-    const targetValue = path(targetField.split("."), data);
-    if (filterValue === undefined || filterValue === null) {
+    const firstOperandValue = firstOperand({ filter, element: data });
+    const secondOperandValue = secondOperand({ filter, element: data });
+    if (firstOperandValue === undefined || firstOperandValue === null) {
       return _valueWhenNotFilter;
     }
-    return callback(filterValue, targetValue);
+    return callback(firstOperandValue, secondOperandValue);
   };
 };
 
-export const composeFilters = (
-  logicalOperator: LogicalOperator,
-  filters: FilterFuncInterface[],
-): FilterFuncInterface =>
-  function(filter: any, source: any, valueWhenNotFilter = undefined) {
-    let filterFunc;
-    let result = valueWhenNotFilter;
-    for (let i = 0; i < filters.length; i++) {
-      filterFunc = filters[i];
-      const filterResult = filterFunc(filter, source);
-      if (filterResult === undefined) continue;
-      if (logicalOperator === LogicalOperator.OR && filterResult) {
-        return true;
-      }
-      if (logicalOperator === LogicalOperator.AND && !filterResult) {
-        return false;
-      }
-      result = filterResult;
-    }
-    return result;
-  };
-
-export const customFieldFilter = ({
-  filterField,
-  targetField,
-  callback,
-}: FieldFilterBuilderInterface): FilterFuncInterface => {
-  return fieldFilterBuilder({
-    filterField,
-    targetField,
-    callback,
-  });
+export const filterField = <T>(fieldName: string): ValueGetterInterface<T> => {
+  return ({ filter }) => path(fieldName.split("."), filter);
+};
+export const elementField = <T>(fieldName: string): ValueGetterInterface<T> => {
+  return ({ element }) => path(fieldName.split("."), element);
+};
+export const constValue = <T>(value: T): ValueGetterInterface<T> => {
+  return () => value;
 };
 
-export const buildFilterToDataList = curry(
+export const buildFilter = curry(
   (
     filterStrategy: StrategiesFilterInterfaceInterface,
     traversalConfig: BuildFilterInterface,

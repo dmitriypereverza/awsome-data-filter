@@ -12,12 +12,12 @@ interface PeriodYearAndQuarterInterface {
 }
 
 export const targetYearAndQuarterBetweenFilterAndQuarters = ({
-  filterField,
-  targetField,
+  firstOperand,
+  secondOperand,
 }: Omit<FieldFilterBuilderInterface, "callback">): FilterFuncInterface => {
   return fieldFilterBuilder({
-    filterField,
-    targetField,
+    firstOperand: firstOperand,
+    secondOperand: secondOperand,
     callback: periodFilterForYearAndQuarter,
   });
 };

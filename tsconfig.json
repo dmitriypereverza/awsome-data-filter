@@ -1,14 +1,19 @@
 {
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/__test__"
+  ],
   "compilerOptions": {
-    "target": "ESNEXT",
     "module": "ESNext",
+    "target": "es5",
     "lib": ["dom", "es2015", "es2016"],
+    "outDir": "./libs",
     "allowJs": true,
     "checkJs": false,
-    "jsx": "preserve",
     "sourceMap": true,
-    "removeComments": false,
-    "noEmit": true,
+    "removeComments": true,
     "strict": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
@@ -34,8 +39,5 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true
-  },
-  "include": [
-    "src"
-  ]
+  }
 }

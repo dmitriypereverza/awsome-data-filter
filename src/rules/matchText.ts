@@ -1,22 +1,22 @@
 import {
   fieldFilterBuilder,
-  FieldFilterBuilderInterface,
   FilterFuncInterface,
+  ValueGetterInterface,
 } from "../";
 
-export const matchText = ({
-  filterField,
-  targetField,
-}: Omit<FieldFilterBuilderInterface, "callback">): FilterFuncInterface =>
+export const matchText = (
+  needle: ValueGetterInterface<string>,
+  source: ValueGetterInterface<string>,
+): FilterFuncInterface =>
   fieldFilterBuilder({
-    filterField,
-    targetField,
-    callback: (filter, target) => {
-      if (typeof target !== "string") {
+    firstOperand: needle,
+    secondOperand: source,
+    callback: (needleValue, sourceValue) => {
+      if (typeof sourceValue !== "string") {
         return false;
       }
-      target = target.toString().toLowerCase();
-      filter = filter.toString().toLowerCase();
-      return !!target.includes(filter);
+      sourceValue = sourceValue.toString().toLowerCase();
+      needleValue = needleValue.toString().toLowerCase();
+      return !!sourceValue.includes(needleValue);
     },
   });

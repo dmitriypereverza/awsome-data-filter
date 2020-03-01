@@ -1,16 +1,15 @@
 import {
   fieldFilterBuilder,
-  FieldFilterBuilderInterface,
   FilterFuncInterface,
+  ValueGetterInterface,
 } from "../";
 
-export const equalProps = ({
-  filterField,
-  targetField,
-}: Omit<FieldFilterBuilderInterface, "callback">): FilterFuncInterface => {
-  return fieldFilterBuilder({
-    filterField,
-    targetField,
-    callback: (a, b) => a === b,
+export const equalProps = (
+  target: ValueGetterInterface<string>,
+  source: ValueGetterInterface<string>,
+): FilterFuncInterface =>
+  fieldFilterBuilder({
+    firstOperand: target,
+    secondOperand: source,
+    callback: (targetValue, sourceValue) => targetValue === sourceValue,
   });
-};

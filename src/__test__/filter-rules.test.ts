@@ -1,8 +1,9 @@
 import { equalProps } from "../rules/equalProps";
-import { targetFieldEquals } from "../rules/targetFieldEquals";
-import { isEmptyArrayField } from "../rules/targetFieldIsEmptyArray";
-import { composeFilters, LogicalOperator } from "..";
-import { someMatchInArray } from "../rules/someMatchInArray";
+import { constValue, elementField, filterField } from "..";
+import { isEmptyArray } from "../rules/isEmptyArray";
+import { equalOneOf } from "../rules/equalOneOf";
+import { or } from "../conditions";
+import { someInArray } from "../rules/someInArray";
 
 test("Equal props test", () => {
   const element1 = {
@@ -36,10 +37,10 @@ test("Equal props test", () => {
     },
   };
 
-  const func = equalProps({
-    filterField: "serviceGroup.code",
-    targetField: "serviceGroup.code",
-  });
+  const func = equalProps(
+    filterField("serviceGroup.code"),
+    elementField("serviceGroup.code"),
+  );
 
   expect(func(filter, element1)).toEqual(true);
   expect(func(filter, element2)).toEqual(false);
@@ -50,26 +51,24 @@ test("Equal props test", () => {
 });
 
 test("isFieldsEqual", () => {
-  const match = targetFieldEquals({
-    targetField: "value",
-    values: [undefined, null, ""],
-  });
+  const match = equalOneOf(elementField("value"), [
+    constValue(null),
+    constValue(""),
+  ]);
 
   expect(match({}, { value: null })).toEqual(true);
-  expect(match({}, { value: undefined })).toEqual(true);
+  expect(match({}, { value: undefined })).toEqual(false);
   expect(match({}, { value: "" })).toEqual(true);
   expect(match({}, { value: "null" })).toEqual(false);
   expect(match({}, { value: 0 })).toEqual(false);
-  expect(match({}, {})).toEqual(undefined);
-  expect(match({}, NaN)).toEqual(undefined);
-  expect(match({}, null)).toEqual(undefined);
-  expect(match({}, undefined)).toEqual(undefined);
+  expect(match({}, {})).toEqual(false);
+  expect(match({}, NaN)).toEqual(false);
+  expect(match({}, null)).toEqual(false);
+  expect(match({}, undefined)).toEqual(false);
 });
 
 test("isEmptyArrayField", () => {
-  const match = isEmptyArrayField({
-    targetField: "value",
-  });
+  const match = isEmptyArray(elementField("value"));
 
   expect(match({}, { value: [1] })).toEqual(false);
   expect(match({}, { value: [] })).toEqual(true);
@@ -80,22 +79,17 @@ test("isEmptyArrayField", () => {
 });
 
 test("both isFieldsEqual and isEmptyArrayField", () => {
-  const match = composeFilters(LogicalOperator.OR, [
-    targetFieldEquals({
-      targetField: "value",
-      values: [undefined, null, ""],
-    }),
-    isEmptyArrayField({
-      targetField: "value",
-    }),
+  const match = or([
+    equalOneOf(elementField("value"), [constValue(null), constValue("")]),
+    isEmptyArray(elementField("value")),
   ]);
 
   expect(match({}, { value: [1] })).toEqual(false);
   expect(match({}, { value: [] })).toEqual(true);
-  expect(match({}, {})).toEqual(undefined);
-  expect(match({}, null)).toEqual(undefined);
-  expect(match({}, undefined)).toEqual(undefined);
-  expect(match({}, "fff")).toEqual(undefined);
+  expect(match({}, {})).toEqual(false);
+  expect(match({}, null)).toEqual(false);
+  expect(match({}, undefined)).toEqual(false);
+  expect(match({}, "fff")).toEqual(false);
 });
 
 test("Some Match In Array test", () => {
@@ -124,34 +118,19 @@ test("Some Match In Array test", () => {
     },
   };
 
-  const softMatch = composeFilters(LogicalOperator.OR, [
-    targetFieldEquals({
-      targetField: "attributes",
-      values: [undefined, null, ""],
-    }),
-    isEmptyArrayField({
-      targetField: "attributes",
-    }),
-    someMatchInArray({
-      targetField: "attributes",
-      condition: composeFilters(LogicalOperator.OR, [
-        equalProps({
-          filterField: "attribute.name",
-          targetField: "name",
-        }),
-      ]),
-    }),
+  const softMatch = or([
+    equalOneOf(elementField("attributes"), [constValue(null), constValue("")]),
+    isEmptyArray(elementField("attributes")),
+    someInArray(
+      elementField("attributes"),
+      equalProps(filterField("attribute.name"), elementField("name")),
+    ),
   ]);
 
-  const hardMatch = someMatchInArray({
-    targetField: "attributes",
-    condition: composeFilters(LogicalOperator.OR, [
-      equalProps({
-        filterField: "attribute.name",
-        targetField: "name",
-      }),
-    ]),
-  });
+  const hardMatch = someInArray(
+    elementField("attributes"),
+    equalProps(filterField("attribute.name"), elementField("name")),
+  );
 
   expect(softMatch(filter, element1)).toEqual(true);
   expect(hardMatch(filter, element1)).toEqual(true);
@@ -162,9 +141,9 @@ test("Some Match In Array test", () => {
   expect(softMatch(filter, element3)).toEqual(true);
   expect(hardMatch(filter, element3)).toEqual(undefined);
 
-  expect(softMatch(filter, element4)).toEqual(undefined);
+  expect(softMatch(filter, element4)).toEqual(false);
   expect(hardMatch(filter, element4)).toEqual(undefined);
 
-  expect(softMatch(filter, element5)).toEqual(undefined);
+  expect(softMatch(filter, element5)).toEqual(false);
   expect(hardMatch(filter, element5)).toEqual(undefined);
 });
