@@ -4,12 +4,12 @@ import {
   ValueGetterInterface,
 } from "../";
 
-export const equalProps = (
-  target: ValueGetterInterface<any>,
-  source: ValueGetterInterface<any>,
+export const moreThen = (
+  target: ValueGetterInterface<string | number>,
+  source: ValueGetterInterface<string | number>,
 ): FilterFuncInterface =>
   fieldFilterBuilder({
     firstOperand: target,
     secondOperand: source,
-    callback: (targetValue, sourceValue) => targetValue === sourceValue,
+    callback: (targetValue, sourceValue) => targetValue > sourceValue,
   });

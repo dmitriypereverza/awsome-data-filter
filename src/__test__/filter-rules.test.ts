@@ -1,9 +1,20 @@
 import { equalProps } from "../rules/equalProps";
-import { constValue, elementField, filterField } from "..";
+import {
+  constValue,
+  elementField,
+  filterField,
+  ValueGetterInterface,
+} from "..";
 import { isEmptyArray } from "../rules/isEmptyArray";
 import { equalOneOf } from "../rules/equalOneOf";
 import { or } from "../conditions";
 import { someInArray } from "../rules/someInArray";
+import { not } from "../rules/not";
+import { betweenDates } from "../rules/betweenDates";
+import { Moment } from "moment";
+import moment = require("moment");
+import { lessThen } from "../rules/lessThen";
+import { moreThen } from "../rules/moreThen";
 
 test("Equal props test", () => {
   const element1 = {
@@ -146,4 +157,66 @@ test("Some Match In Array test", () => {
 
   expect(softMatch(filter, element5)).toEqual(false);
   expect(hardMatch(filter, element5)).toEqual(undefined);
+});
+
+test("not rule test", () => {
+  const match = equalProps(constValue(1), constValue(1));
+
+  expect(match({}, {})).toEqual(true);
+  expect(not(match)({}, {})).toEqual(false);
+});
+
+test("betweenDates rule test", () => {
+  function toMomentDeco(
+    func: ValueGetterInterface<string>,
+    format: string,
+  ): ValueGetterInterface<Moment> {
+    return (...args) => moment(func(...args), format);
+  }
+
+  const match = betweenDates(
+    toMomentDeco(constValue("12.12.2020"), "DD.MM.YYYY"),
+    [
+      toMomentDeco(constValue("10.12.2020"), "DD.MM.YYYY"),
+      toMomentDeco(constValue("13.12.2020"), "DD.MM.YYYY"),
+    ],
+  );
+
+  const matchFail = betweenDates(
+    toMomentDeco(constValue("1.12.2020"), "DD.MM.YYYY"),
+    [
+      toMomentDeco(constValue("10.12.2020"), "DD.MM.YYYY"),
+      toMomentDeco(constValue("13.12.2020"), "DD.MM.YYYY"),
+    ],
+  );
+
+  const matchNotValid = betweenDates(
+    toMomentDeco(constValue("1.sdfsdf.2020"), "DD.MM.YYYY"),
+    [
+      toMomentDeco(constValue("10.12.2020"), "DD.MM.YYYY"),
+      toMomentDeco(constValue("13.12.2020"), "DD.MM.YYYY"),
+    ],
+  );
+
+  expect(match({}, {})).toEqual(true);
+  expect(matchFail({}, {})).toEqual(false);
+  expect(matchNotValid({}, {})).toEqual(undefined);
+});
+
+test("less and more then rule", () => {
+  const match = lessThen(constValue(10), constValue(20));
+  const matchFail = lessThen(constValue(100), constValue(20));
+  const matchFail2 = lessThen(constValue("101"), constValue(20));
+
+  expect(match({}, {})).toEqual(true);
+  expect(matchFail({}, {})).toEqual(false);
+  expect(matchFail2({}, {})).toEqual(false);
+
+  const match2 = moreThen(constValue(10), constValue(20));
+  const match2Fail = moreThen(constValue(100), constValue(20));
+  const match2Fail2 = moreThen(constValue("101"), constValue(20));
+
+  expect(match2({}, {})).toEqual(false);
+  expect(match2Fail({}, {})).toEqual(true);
+  expect(match2Fail2({}, {})).toEqual(true);
 });
