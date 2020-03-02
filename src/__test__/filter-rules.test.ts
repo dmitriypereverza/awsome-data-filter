@@ -11,8 +11,7 @@ import { or } from "../conditions";
 import { someInArray } from "../rules/someInArray";
 import { not } from "../rules/not";
 import { betweenDates } from "../rules/betweenDates";
-import { Moment } from "moment";
-import moment = require("moment");
+import moment, { Moment } from "moment";
 import { lessThen } from "../rules/lessThen";
 import { moreThen } from "../rules/moreThen";
 
