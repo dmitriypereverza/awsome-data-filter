@@ -1,4 +1,5 @@
-import { curry, path } from "ramda";
+import { path } from "ramda";
+import standardStrategy from "./strategies/standardStrategy";
 
 export interface FilterFuncInterface {
   (filterValue: any, targetValue: any, _valueWhenRuleInvalid?: boolean):
@@ -27,7 +28,7 @@ export enum LogicalOperator {
 
 interface ToolsInterface
   extends Pick<
-    BuildFilterInterface,
+    TraversalConfigInterface,
     "getChildrenFunc" | "setChildrenFunc" | "setGroupsFunc" | "getGroupsFunc"
   > {
   isGroupFilterIsActive: boolean;
@@ -52,16 +53,19 @@ export interface FilterFunctionInterface {
   };
 }
 
-interface BuildFilterInterface {
+interface TraversalConfigInterface {
   getChildrenFunc: (group) => any[];
   setChildrenFunc: (group, elements: any[]) => any;
   setGroupsFunc: (group: any, groups: any[]) => any;
   getGroupsFunc: (group: any) => any[];
+}
+
+interface RuleConfigInterface {
   elementFilterFunc?: FilterFuncInterface;
   groupFilterFunc?: FilterFuncInterface;
 }
 
-interface StrategiesFilterInterfaceInterface {
+export interface StrategiesFilterInterfaceInterface {
   groupHandler: FilterHandlerInterface;
   elementHandler: FilterHandlerInterface;
 }
@@ -91,78 +95,86 @@ export const constValue = <T>(value: T): ValueGetterInterface<T> => {
   return () => value;
 };
 
-export const buildFilter = curry(
-  (
-    filterStrategy: StrategiesFilterInterfaceInterface,
-    traversalConfig: BuildFilterInterface,
-  ): FilterFunctionInterface => {
-    return (filter, data) => {
-      const {
-        getChildrenFunc,
-        getGroupsFunc,
-        setChildrenFunc,
-        setGroupsFunc,
-        elementFilterFunc,
-        groupFilterFunc,
-      } = traversalConfig;
-
-      const applyGroupFilter = (filter =>
-        groupFilterFunc
-          ? (data, defaultValue = undefined) =>
-              groupFilterFunc(filter, data, defaultValue)
-          : null)(filter);
-
-      const applyElementFilter = (filter =>
-        elementFilterFunc
-          ? (data, defaultValue = undefined) =>
-              elementFilterFunc(filter, data, defaultValue)
-          : null)(filter);
-
-      const isGroupFilterIsActive =
-        applyGroupFilter && applyGroupFilter({}) !== undefined;
-
-      const getIsGroupFilterHaveMatch = group =>
-        applyGroupFilter ? !!applyGroupFilter(group) : false;
-
-      const tools: ToolsInterface = {
-        isGroupFilterIsActive,
-        applyElementFilter,
-        applyGroupFilter,
-        getIsGroupFilterHaveMatch,
-        getChildrenFunc,
-        setChildrenFunc,
-        setGroupsFunc,
-        getGroupsFunc,
-      };
-
-      const groupMapper = (group, handler: FilterHandlerInterface) => {
-        const groups = getGroupsFunc(group);
-        if (!groups || !groups.length) {
-          return handler({ element: group, originalElement: group, tools });
-        }
-
-        const newGroups = groups
-          .map(el => groupMapper(el, handler))
-          .filter(Boolean);
-
-        const newGroup = setGroupsFunc(group, newGroups);
-        return handler({ element: newGroup, originalElement: group, tools });
-      };
-
-      return {
-        groups: data.groups
-          .map(group => groupMapper(group, filterStrategy.groupHandler))
-          .filter(Boolean),
-        elements: data.elements
-          .map(el =>
-            filterStrategy.elementHandler({
-              element: el,
-              originalElement: el,
-              tools,
-            }),
-          )
-          .filter(Boolean),
-      };
-    };
+export function buildFilter({
+  filterStrategy = standardStrategy,
+  traversalConfig = {
+    setChildrenFunc: group => group,
+    setGroupsFunc: group => group,
+    getChildrenFunc: () => [],
+    getGroupsFunc: () => [],
   },
-);
+  ruleConfig,
+}: {
+  filterStrategy?: StrategiesFilterInterfaceInterface;
+  traversalConfig?: TraversalConfigInterface;
+  ruleConfig: RuleConfigInterface;
+}): FilterFunctionInterface {
+  return (filter, data) => {
+    const {
+      getChildrenFunc,
+      getGroupsFunc,
+      setChildrenFunc,
+      setGroupsFunc,
+    } = traversalConfig;
+
+    const { elementFilterFunc, groupFilterFunc } = ruleConfig;
+
+    const applyGroupFilter = (filter =>
+      groupFilterFunc
+        ? (data, defaultValue = undefined) =>
+            groupFilterFunc(filter, data, defaultValue)
+        : null)(filter);
+
+    const applyElementFilter = (filter =>
+      elementFilterFunc
+        ? (data, defaultValue = undefined) =>
+            elementFilterFunc(filter, data, defaultValue)
+        : null)(filter);
+
+    const isGroupFilterIsActive =
+      applyGroupFilter && applyGroupFilter({}) !== undefined;
+
+    const getIsGroupFilterHaveMatch = group =>
+      applyGroupFilter ? !!applyGroupFilter(group) : false;
+
+    const tools: ToolsInterface = {
+      isGroupFilterIsActive,
+      applyElementFilter,
+      applyGroupFilter,
+      getIsGroupFilterHaveMatch,
+      getChildrenFunc,
+      setChildrenFunc,
+      setGroupsFunc,
+      getGroupsFunc,
+    };
+
+    const groupMapper = (group, handler: FilterHandlerInterface) => {
+      const groups = getGroupsFunc ? getGroupsFunc(group) : [];
+      if (!groups || !groups.length) {
+        return handler({ element: group, originalElement: group, tools });
+      }
+
+      const newGroups = groups
+        .map(el => groupMapper(el, handler))
+        .filter(Boolean);
+
+      const newGroup = setGroupsFunc ? setGroupsFunc(group, newGroups) : group;
+      return handler({ element: newGroup, originalElement: group, tools });
+    };
+
+    return {
+      groups: data.groups
+        .map(group => groupMapper(group, filterStrategy.groupHandler))
+        .filter(Boolean),
+      elements: data.elements
+        .map(el =>
+          filterStrategy.elementHandler({
+            element: el,
+            originalElement: el,
+            tools,
+          }),
+        )
+        .filter(Boolean),
+    };
+  };
+}

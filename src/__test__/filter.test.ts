@@ -4,52 +4,6 @@ import { matchText } from "../rules/matchText";
 import { and } from "../conditions";
 import { equalProps } from "../rules/equalProps";
 
-const filter = buildFilter({
-  elementHandler: ({
-    element,
-    tools: { isGroupFilterIsActive, applyElementFilter },
-  }) => {
-    if (isGroupFilterIsActive) return null;
-    if (!applyElementFilter) return element;
-    return applyElementFilter(element, true) ? element : null;
-  },
-  groupHandler: ({
-    element: group,
-    originalElement: originalGroup,
-    tools: {
-      isGroupFilterIsActive,
-      applyElementFilter,
-      getIsGroupFilterHaveMatch,
-      getGroupsFunc,
-      getChildrenFunc,
-      setChildrenFunc,
-    },
-  }) => {
-    let newChildren = [];
-    let originalChildren = [];
-    const children = getChildrenFunc(group);
-    const childrenExists = !!children;
-    if (children) {
-      originalChildren = [...children];
-      newChildren = originalChildren.filter(element =>
-        applyElementFilter
-          ? applyElementFilter(element, !isGroupFilterIsActive)
-          : !isGroupFilterIsActive,
-      );
-    }
-    if (!newChildren.length && getIsGroupFilterHaveMatch(group)) {
-      return originalGroup;
-    }
-    if (childrenExists) {
-      group = setChildrenFunc(group, newChildren);
-    }
-    const newGroups = getGroupsFunc(group);
-    const isGroupsExists = !!(newGroups && newGroups.length);
-    const isElementExists = !!(newChildren && newChildren.length);
-    return isElementExists || isGroupsExists ? group : null;
-  },
-});
-
 const originalDataList = [
   {
     groupName: "Название группы",
@@ -118,15 +72,13 @@ const testMap = {
 };
 
 test("Filter simple test", () => {
-  const builtFilterFunction = filter({
-    setChildrenFunc: (group, items) => ({ ...group, elements: items }),
-    setGroupsFunc: (group, groups) => ({ ...group, groups: groups }),
-    getChildrenFunc: group => group.elements,
-    getGroupsFunc: group => group.groups,
-    elementFilterFunc: and([
-      matchText(filterField("name"), elementField("name")),
-      matchText(constValue("моя"), elementField("name")),
-    ]),
+  const builtFilterFunction = buildFilter({
+    ruleConfig: {
+      elementFilterFunc: and([
+        matchText(filterField("name"), elementField("name")),
+        matchText(constValue("моя"), elementField("name")),
+      ]),
+    },
   });
 
   const { elements } = builtFilterFunction(
@@ -145,14 +97,18 @@ test("Filter simple test", () => {
 });
 
 test("Filter by searchText", () => {
-  const buildedFilterFunction = filter({
-    setGroupsFunc: (group, items) => ({ ...group, list: items }),
-    setChildrenFunc: (group, items) => ({ ...group, list: items }),
-    getChildrenFunc: group => group.list,
-    getGroupsFunc: () => [],
-    elementFilterFunc: and([
-      matchText(filterField("name"), elementField("name")),
-    ]),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setGroupsFunc: (group, items) => ({ ...group, list: items }),
+      setChildrenFunc: (group, items) => ({ ...group, list: items }),
+      getChildrenFunc: group => group.list,
+      getGroupsFunc: () => [],
+    },
+    ruleConfig: {
+      elementFilterFunc: and([
+        matchText(filterField("name"), elementField("name")),
+      ]),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -167,14 +123,18 @@ test("Filter by searchText", () => {
 });
 
 test("Filter by dropdown", () => {
-  const buildedFilterFunction = filter({
-    setGroupsFunc: (group, items) => ({ ...group, list: items }),
-    setChildrenFunc: (group, items) => ({ ...group, list: items }),
-    getChildrenFunc: group => group.list,
-    getGroupsFunc: () => [],
-    elementFilterFunc: and([
-      equalProps(filterField("amount"), elementField("count")),
-    ]),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setGroupsFunc: (group, items) => ({ ...group, list: items }),
+      setChildrenFunc: (group, items) => ({ ...group, list: items }),
+      getChildrenFunc: group => group.list,
+      getGroupsFunc: () => [],
+    },
+    ruleConfig: {
+      elementFilterFunc: and([
+        equalProps(filterField("amount"), elementField("count")),
+      ]),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -189,15 +149,19 @@ test("Filter by dropdown", () => {
 });
 
 test("Filter by dropdown and searchText", () => {
-  const buildedFilterFunction = filter({
-    setGroupsFunc: (group, items) => ({ ...group, list: items }),
-    setChildrenFunc: (group, items) => ({ ...group, list: items }),
-    getChildrenFunc: group => group.list,
-    getGroupsFunc: () => [],
-    elementFilterFunc: and([
-      equalProps(filterField("amount"), elementField("count")),
-      matchText(filterField("name"), elementField("name")),
-    ]),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setGroupsFunc: (group, items) => ({ ...group, list: items }),
+      setChildrenFunc: (group, items) => ({ ...group, list: items }),
+      getChildrenFunc: group => group.list,
+      getGroupsFunc: () => [],
+    },
+    ruleConfig: {
+      elementFilterFunc: and([
+        equalProps(filterField("amount"), elementField("count")),
+        matchText(filterField("name"), elementField("name")),
+      ]),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -212,15 +176,18 @@ test("Filter by dropdown and searchText", () => {
 });
 
 test("Filter by group", () => {
-  const buildedFilterFunction = filter({
-    setGroupsFunc: (group, items) => ({ ...group, list: items }),
-    setChildrenFunc: (group, items) => ({ ...group, list: items }),
-    getChildrenFunc: group => group.list,
-    getGroupsFunc: () => [],
-    elementFilterFunc: null,
-    groupFilterFunc: and([
-      matchText(filterField("name"), elementField("groupName")),
-    ]),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setGroupsFunc: (group, items) => ({ ...group, list: items }),
+      setChildrenFunc: (group, items) => ({ ...group, list: items }),
+      getChildrenFunc: group => group.list,
+      getGroupsFunc: () => [],
+    },
+    ruleConfig: {
+      groupFilterFunc: and([
+        matchText(filterField("name"), elementField("groupName")),
+      ]),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -246,14 +213,21 @@ test("Filter by group", () => {
 });
 
 test("Filter by group without filter", () => {
-  const buildedFilterFunction = filter({
-    setGroupsFunc: (group, items) => ({ ...group, list: items }),
-    setChildrenFunc: (group, items) => ({ ...group, list: items }),
-    getChildrenFunc: group => group.list,
-    getGroupsFunc: () => [],
-    elementFilterFunc: null,
-    groupFilterFunc: matchText(filterField("name"), elementField("groupName")),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setGroupsFunc: (group, items) => ({ ...group, list: items }),
+      setChildrenFunc: (group, items) => ({ ...group, list: items }),
+      getChildrenFunc: group => group.list,
+      getGroupsFunc: () => [],
+    },
+    ruleConfig: {
+      groupFilterFunc: matchText(
+        filterField("name"),
+        elementField("groupName"),
+      ),
+    },
   });
+
   const { groups } = buildedFilterFunction(
     {},
     {
@@ -265,19 +239,23 @@ test("Filter by group without filter", () => {
 });
 
 test("Filter by group with elements filter", () => {
-  const buildedFilterFunction = filter({
-    setGroupsFunc: (group, items) => ({ ...group, list: items }),
-    setChildrenFunc: (group, items) => ({ ...group, list: items }),
-    getChildrenFunc: group => group.list,
-    getGroupsFunc: () => [],
-    elementFilterFunc: matchText(
-      filterField("elementName"),
-      elementField("name"),
-    ),
-    groupFilterFunc: matchText(
-      filterField("groupName"),
-      elementField("groupName"),
-    ),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setGroupsFunc: (group, items) => ({ ...group, list: items }),
+      setChildrenFunc: (group, items) => ({ ...group, list: items }),
+      getChildrenFunc: group => group.list,
+      getGroupsFunc: () => [],
+    },
+    ruleConfig: {
+      elementFilterFunc: matchText(
+        filterField("elementName"),
+        elementField("name"),
+      ),
+      groupFilterFunc: matchText(
+        filterField("groupName"),
+        elementField("groupName"),
+      ),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -365,16 +343,23 @@ const originalDeepDataList: DeepGroupsInterface[] = [
 ];
 
 test("Filter DeepDataList with elements filter", () => {
-  const buildedFilterFunction = filter({
-    setChildrenFunc: (group, items) => ({ ...group, elements: items }),
-    setGroupsFunc: (group, groups) => ({ ...group, groups: groups }),
-    getChildrenFunc: group => group.elements,
-    getGroupsFunc: group => group.groups,
-    elementFilterFunc: equalProps(filterField("amount"), elementField("count")),
-    groupFilterFunc: equalProps(
-      filterField("groupName"),
-      elementField("groupName"),
-    ),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setChildrenFunc: (group, items) => ({ ...group, elements: items }),
+      setGroupsFunc: (group, groups) => ({ ...group, groups: groups }),
+      getChildrenFunc: group => group.elements,
+      getGroupsFunc: group => group.groups,
+    },
+    ruleConfig: {
+      elementFilterFunc: equalProps(
+        filterField("amount"),
+        elementField("count"),
+      ),
+      groupFilterFunc: equalProps(
+        filterField("groupName"),
+        elementField("groupName"),
+      ),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -407,16 +392,19 @@ test("Filter DeepDataList with elements filter", () => {
 });
 
 test("Filter DeepDataList without filter", () => {
-  const buildedFilterFunction = filter({
-    setChildrenFunc: (group, items) => ({ ...group, elements: items }),
-    setGroupsFunc: (group, groups) => ({ ...group, groups: groups }),
-    getChildrenFunc: group => group.elements,
-    getGroupsFunc: group => group.groups,
-    elementFilterFunc: null,
-    groupFilterFunc: matchText(
-      filterField("groupName"),
-      elementField("groupName"),
-    ),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      setChildrenFunc: (group, items) => ({ ...group, elements: items }),
+      setGroupsFunc: (group, groups) => ({ ...group, groups: groups }),
+      getChildrenFunc: group => group.elements,
+      getGroupsFunc: group => group.groups,
+    },
+    ruleConfig: {
+      groupFilterFunc: matchText(
+        filterField("groupName"),
+        elementField("groupName"),
+      ),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -431,16 +419,19 @@ test("Filter DeepDataList without filter", () => {
 });
 
 test("Filter DeepDataList with all group filter", () => {
-  const buildedFilterFunction = filter({
-    getChildrenFunc: group => group.elements,
-    setChildrenFunc: (group, elements) => ({ ...group, elements }),
-    getGroupsFunc: group => group.groups,
-    setGroupsFunc: (group, groups) => ({ ...group, groups }),
-    elementFilterFunc: null,
-    groupFilterFunc: matchText(
-      filterField("groupName"),
-      elementField("groupName"),
-    ),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      getChildrenFunc: group => group.elements,
+      setChildrenFunc: (group, elements) => ({ ...group, elements }),
+      getGroupsFunc: group => group.groups,
+      setGroupsFunc: (group, groups) => ({ ...group, groups }),
+    },
+    ruleConfig: {
+      groupFilterFunc: matchText(
+        filterField("groupName"),
+        elementField("groupName"),
+      ),
+    },
   });
 
   const { groups } = buildedFilterFunction(
@@ -463,15 +454,13 @@ const originalElements: ElementInterface[] = [
 ];
 
 test("Filter elements by only elements filter", () => {
-  const buildedFilterFunction = filter({
-    getChildrenFunc: group => group.elements,
-    setChildrenFunc: (group, elements) => ({ ...group, elements }),
-    getGroupsFunc: group => group.groups,
-    setGroupsFunc: (group, groups) => ({ ...group, groups }),
-    elementFilterFunc: matchText(
-      filterField("elementName"),
-      elementField("name"),
-    ),
+  const buildedFilterFunction = buildFilter({
+    ruleConfig: {
+      elementFilterFunc: matchText(
+        filterField("elementName"),
+        elementField("name"),
+      ),
+    },
   });
 
   const { groups, elements } = buildedFilterFunction(
@@ -490,19 +479,23 @@ test("Filter elements by only elements filter", () => {
 });
 
 test("Filter elements by elements and group filter", () => {
-  const buildedFilterFunction = filter({
-    getChildrenFunc: group => group.elements,
-    setChildrenFunc: (group, elements) => ({ ...group, elements }),
-    getGroupsFunc: group => group.groups,
-    setGroupsFunc: (group, groups) => ({ ...group, groups }),
-    elementFilterFunc: matchText(
-      filterField("elementName"),
-      elementField("name"),
-    ),
-    groupFilterFunc: matchText(
-      filterField("groupName"),
-      elementField("groupName"),
-    ),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      getChildrenFunc: group => group.elements,
+      setChildrenFunc: (group, elements) => ({ ...group, elements }),
+      getGroupsFunc: group => group.groups,
+      setGroupsFunc: (group, groups) => ({ ...group, groups }),
+    },
+    ruleConfig: {
+      elementFilterFunc: matchText(
+        filterField("elementName"),
+        elementField("name"),
+      ),
+      groupFilterFunc: matchText(
+        filterField("groupName"),
+        elementField("groupName"),
+      ),
+    },
   });
 
   const { groups, elements } = buildedFilterFunction(
@@ -550,16 +543,20 @@ const groupsData = [
 ];
 
 test("Filter groups with undefined rule result value", () => {
-  const buildedFilterFunction = filter({
-    getChildrenFunc: group => group.list,
-    setChildrenFunc: (group, list) => ({ ...group, list }),
-    getGroupsFunc: group => group.groups,
-    setGroupsFunc: (group, groups) => ({ ...group, groups }),
-    elementFilterFunc: and([
-      equalProps(filterField("amount"), elementField("count")),
-      matchText(filterField("name"), elementField("name")),
-    ]),
-    groupFilterFunc: matchText(filterField("name"), elementField("name")),
+  const buildedFilterFunction = buildFilter({
+    traversalConfig: {
+      getChildrenFunc: group => group.list,
+      setChildrenFunc: (group, list) => ({ ...group, list }),
+      getGroupsFunc: group => group.groups,
+      setGroupsFunc: (group, groups) => ({ ...group, groups }),
+    },
+    ruleConfig: {
+      elementFilterFunc: and([
+        equalProps(filterField("amount"), elementField("count")),
+        matchText(filterField("name"), elementField("name")),
+      ]),
+      groupFilterFunc: matchText(filterField("name"), elementField("name")),
+    },
   });
 
   const { groups } = buildedFilterFunction(
