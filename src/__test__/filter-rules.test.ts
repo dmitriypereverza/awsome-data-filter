@@ -1,17 +1,20 @@
-import { equalProps } from "../rules/equalProps";
+import moment, { Moment } from "moment";
+
 import {
   constValue,
   elementField,
   filterField,
   ValueGetterInterface,
 } from "..";
+
+import { or } from "../conditions";
+
+import { equalProps } from "../rules/equalProps";
 import { isEmptyArray } from "../rules/isEmptyArray";
 import { equalOneOf } from "../rules/equalOneOf";
-import { or } from "../conditions";
 import { someInArray } from "../rules/someInArray";
 import { not } from "../rules/not";
 import { betweenDates } from "../rules/betweenDates";
-import moment, { Moment } from "moment";
 import { lessThen } from "../rules/lessThen";
 import { moreThen } from "../rules/moreThen";
 

@@ -1,4 +1,5 @@
 import { buildFilter, constValue, elementField, filterField } from "../index";
+
 import { matchText } from "../rules/matchText";
 import { and } from "../conditions";
 import { equalProps } from "../rules/equalProps";
