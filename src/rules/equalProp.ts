@@ -4,7 +4,7 @@ import {
   ValueGetterInterface,
 } from "../";
 
-export const equalProps = (
+export const equalProp = (
   target: ValueGetterInterface<any>,
   source: ValueGetterInterface<any>,
 ): FilterFuncInterface =>

@@ -2,7 +2,7 @@ import { buildFilter, constValue, elementField, filterField } from "../index";
 
 import { matchText } from "../rules/matchText";
 import { and } from "../conditions";
-import { equalProps } from "../rules/equalProps";
+import { equalProp } from "../rules/equalProp";
 
 const originalDataList = [
   {
@@ -37,6 +37,8 @@ const originalDataList = [
     list: [{ name: "Тест7", count: "88" }],
   },
 ];
+
+
 const testMap = {
   filterText1: [
     {
@@ -132,7 +134,7 @@ test("Filter by dropdown", () => {
     },
     ruleConfig: {
       elementFilterFunc: and([
-        equalProps(filterField("amount"), elementField("count")),
+        equalProp(filterField("amount"), elementField("count")),
       ]),
     },
   });
@@ -158,7 +160,7 @@ test("Filter by dropdown and searchText", () => {
     },
     ruleConfig: {
       elementFilterFunc: and([
-        equalProps(filterField("amount"), elementField("count")),
+        equalProp(filterField("amount"), elementField("count")),
         matchText(filterField("name"), elementField("name")),
       ]),
     },
@@ -351,11 +353,11 @@ test("Filter DeepDataList with elements filter", () => {
       getGroupsFunc: group => group.groups,
     },
     ruleConfig: {
-      elementFilterFunc: equalProps(
+      elementFilterFunc: equalProp(
         filterField("amount"),
         elementField("count"),
       ),
-      groupFilterFunc: equalProps(
+      groupFilterFunc: equalProp(
         filterField("groupName"),
         elementField("groupName"),
       ),
@@ -552,7 +554,7 @@ test("Filter groups with undefined rule result value", () => {
     },
     ruleConfig: {
       elementFilterFunc: and([
-        equalProps(filterField("amount"), elementField("count")),
+        equalProp(filterField("amount"), elementField("count")),
         matchText(filterField("name"), elementField("name")),
       ]),
       groupFilterFunc: matchText(filterField("name"), elementField("name")),

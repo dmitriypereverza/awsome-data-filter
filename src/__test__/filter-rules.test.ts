@@ -9,7 +9,7 @@ import {
 
 import { or } from "../conditions";
 
-import { equalProps } from "../rules/equalProps";
+import { equalProp } from "../rules/equalProp";
 import { isEmptyArray } from "../rules/isEmptyArray";
 import { equalOneOf } from "../rules/equalOneOf";
 import { someInArray } from "../rules/someInArray";
@@ -50,7 +50,7 @@ test("Equal props test", () => {
     },
   };
 
-  const func = equalProps(
+  const func = equalProp(
     filterField("serviceGroup.code"),
     elementField("serviceGroup.code"),
   );
@@ -136,13 +136,13 @@ test("Some Match In Array test", () => {
     isEmptyArray(elementField("attributes")),
     someInArray(
       elementField("attributes"),
-      equalProps(filterField("attribute.name"), elementField("name")),
+      equalProp(filterField("attribute.name"), elementField("name")),
     ),
   ]);
 
   const hardMatch = someInArray(
     elementField("attributes"),
-    equalProps(filterField("attribute.name"), elementField("name")),
+    equalProp(filterField("attribute.name"), elementField("name")),
   );
 
   expect(softMatch(filter, element1)).toEqual(true);
@@ -162,7 +162,7 @@ test("Some Match In Array test", () => {
 });
 
 test("not rule test", () => {
-  const match = equalProps(constValue(1), constValue(1));
+  const match = equalProp(constValue(1), constValue(1));
 
   expect(match({}, {})).toEqual(true);
   expect(not(match)({}, {})).toEqual(false);
