@@ -74,7 +74,7 @@ const filter = buildFilter({
     },
   });
 
-const { elements } = buildedFilterFunction(
+const { elements } = filter(
     filterValue,
     {
       groups: [],
@@ -106,7 +106,7 @@ const filter = buildFilter({
     },
   });
 
-const { elements } = buildedFilterFunction(
+const { elements } = filter(
     filterValue,
     {
       groups: [],
