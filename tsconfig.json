@@ -1,16 +1,11 @@
 {
-  "include": [
-    "./src/**/*.ts"
-  ],
-  "exclude": [
-    "src/**/__test__"
-  ],
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "amd",
     "target": "es5",
-    "lib": ["dom", "es2015", "es2016"],
-    "outDir": "./libs",
-    "allowJs": true,
+    "lib": ["es2015", "es2016"],
+    "outFile": "./libs/main.js",
+    "declaration": true,
+    "baseUrl": "src",
     "checkJs": false,
     "sourceMap": true,
     "removeComments": true,
@@ -26,7 +21,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
-    "baseUrl": "./src",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "typeRoots": ["./node_modules/@types"],
@@ -37,7 +31,6 @@
     "preserveConstEnums": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true
+    "resolveJsonModule": true
   }
 }

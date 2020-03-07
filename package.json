@@ -1,21 +1,24 @@
 {
-  "name": "awsome-ui-filter",
-  "version": "1.0.0",
+  "name": "awsome-data-filter",
+  "version": "0.0.2",
   "description": "",
-  "main": "index.js",
-  "files": [
-    "src/**/*"
-  ],
+  "main": "libs/main.js",
+  "types": "libs/main.d.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "prepublish": "tsc"
   },
-  "author": "Dmitriy Pereverza disel920@gmail.com",
+  "author": {
+    "name": "Dmitriy Perevera",
+    "email": "disel920@gmail.com"
+  },
   "license": "ISC",
   "dependencies": {
-    "ramda": "0.26.1"
+    "ramda": "0.26.1",
+    "moment": "2.24.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
@@ -27,7 +30,6 @@
     "husky": "3.0.5",
     "jest": "^24.9.0",
     "lint-staged": "9.2.5",
-    "moment": "2.24.0",
     "prettier": "^1.19.1",
     "ts-jest": "^24.1.0",
     "ts-loader": "^6.2.1",

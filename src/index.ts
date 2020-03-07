@@ -53,14 +53,14 @@ export interface FilterFunctionInterface {
   };
 }
 
-interface TraversalConfigInterface {
+export interface TraversalConfigInterface {
   getChildrenFunc: (group) => any[];
   setChildrenFunc: (group, elements: any[]) => any;
   setGroupsFunc: (group: any, groups: any[]) => any;
   getGroupsFunc: (group: any) => any[];
 }
 
-interface RuleConfigInterface {
+export interface RuleConfigInterface {
   elementFilterFunc?: FilterFuncInterface;
   groupFilterFunc?: FilterFuncInterface;
 }

@@ -17,7 +17,7 @@ export enum SortTypes {
   CUSTOM = "custom",
 }
 
-interface SortConfigInterface {
+export interface SortConfigInterface {
   code: string;
   order: Order;
   type?: SortTypes;
@@ -90,14 +90,14 @@ export const getObjectsSort = <T>({
   };
 };
 
-interface TraversalInterface {
+export interface TraversalInterface {
   getChildrenFunc: (group) => any[];
   setChildrenFunc: (group, elements: any[]) => any;
   setGroupsFunc: (group: any, groups: any[]) => any;
   getGroupsFunc: (group: any) => any[];
 }
 
-interface TraversalFuncInterface {
+export interface TraversalFuncInterface {
   (traversalConfig: TraversalInterface): <GROUP, ELEMENT>(
     handlers: {
       elementsHandler?: (list: ELEMENT[]) => ELEMENT[];
@@ -136,16 +136,3 @@ export const getTraversalHandler: TraversalFuncInterface = ({
     return groupsHandler ? groupsHandler(results) : results;
   };
 };
-
-export function customSortingFunctionByFirstElementInArray(
-  fieldInArraysName: string,
-) {
-  return function(prevElement, currentElement) {
-    if (!prevElement || prevElement.length === 0) return 1;
-    if (!currentElement || currentElement.length === 0) return -1;
-    return prevElement[0][fieldInArraysName].toLowerCase() >
-      currentElement[0][fieldInArraysName].toLowerCase()
-      ? 1
-      : -1;
-  };
-}
