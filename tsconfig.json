@@ -1,11 +1,14 @@
 {
+  "exclude": [
+    "modules/**/__test__"
+  ],
   "compilerOptions": {
-    "module": "amd",
+    "module": "ESNEXT",
     "target": "es5",
     "lib": ["es2015", "es2016"],
-    "outFile": "./libs/main.js",
+    "outDir": "src",
     "declaration": true,
-    "baseUrl": "src",
+    "baseUrl": "modules",
     "checkJs": false,
     "sourceMap": true,
     "removeComments": true,

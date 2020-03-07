@@ -1,0 +1,15 @@
+{
+  "name": "awsome-data-filter",
+  "version": "0.0.13",
+  "description": "",
+  "main": "index.js",
+  "author": {
+    "name": "Dmitriy Perevera",
+    "email": "disel920@gmail.com"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "ramda": "0.26.1",
+    "moment": "2.24.0"
+  }
+}
