@@ -1,12 +1,14 @@
 {
   "name": "awsome-data-filter",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "",
   "main": "index.js",
   "author": {
     "name": "Dmitriy Perevera",
-    "email": "disel920@gmail.com"
+    "email": "disel920@gmail.com",
+    "url": "https://github.com/dmitriypereverza/"
   },
+  "homepage": "https://github.com/dmitriypereverza/awsome-data-filter",
   "license": "ISC",
   "dependencies": {
     "ramda": "0.26.1",
