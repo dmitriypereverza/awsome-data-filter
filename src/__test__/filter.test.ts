@@ -38,7 +38,6 @@ const originalDataList = [
   },
 ];
 
-
 const testMap = {
   filterText1: [
     {
