@@ -60,10 +60,10 @@ import {
   buildFilter, 
   elementField, 
   filterField, 
-  matchText, 
-  and,
-  equalProp
 } from "awsome-data-filter";
+import { matchText, equalProp } from "awsome-data-filter/rules";
+import { and } from "awsome-data-filter/conditions";
+
 
 const filter = buildFilter({
     ruleConfig: {
@@ -82,6 +82,7 @@ const { elements } = filter(
     },
 );
 
+console.log(elements);
 // elements: [{ age: 23, name: "Marina Mitchell" }]
 ```
 
@@ -92,10 +93,9 @@ import {
   buildFilter, 
   elementField, 
   filterField, 
-  matchText, 
-  or,
-  equalProp
 } from "awsome-data-filter";
+import { matchText, equalProp } from "awsome-data-filter/rules";
+import { or } from "awsome-data-filter/conditions";
 
 const filter = buildFilter({
     ruleConfig: {
@@ -114,6 +114,7 @@ const { elements } = filter(
     },
 );
 
+console.log(elements);
 // elements: 
 // [
 //   {
@@ -186,8 +187,8 @@ import {
   buildFilter, 
   elementField, 
   filterField, 
-  matchText, 
 } from "awsome-data-filter";
+import { matchText } from "awsome-data-filter/rules";
 
 const filter = buildFilter({
     traversalConfig: {
@@ -205,15 +206,13 @@ const filterValue = {
   searchText: "li",
 };
 
-const { elements } = filter(
-    filterValue,
-    {
-      groups: dataList, // группы с вложенными элементами и группами
-      elements: [], // как элементы можно передавать только плоские списки
-    },
-);
+const { groups } = filter(filterValue, {
+  groups: dataList, // группы с вложенными элементами и группами
+  elements: [], // как элементы можно передавать только плоские списки
+});
 
-// elements: 
+console.log(groups);
+// groups: 
 //[
 //  {
 //    groupName: "second group",
@@ -248,8 +247,8 @@ import {
   buildFilter, 
   elementField, 
   filterField, 
-  matchText, 
 } from "awsome-data-filter";
+import { matchText } from "awsome-data-filter/rules";
 
 const filter = buildFilter({
     traversalConfig: {
@@ -269,15 +268,13 @@ const filterValue = {
   groupName: "fi",
 };
 
-const { elements } = filter(
-    filterValue,
-    {
-      groups: dataList,
-      elements: [],
-    },
-);
+const { groups } = filter(filterValue, {
+  groups: dataList,
+  elements: [],
+});
 
-// elements: 
+console.log(groups);
+// groups:
 //[
 //  {
 //    groupName: "first group",

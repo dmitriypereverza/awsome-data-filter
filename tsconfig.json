@@ -1,14 +1,18 @@
 {
   "exclude": [
-    "src/**/__test__"
+    "src/**/__test__",
+    "test.ts",
+    ".prettierrc.js",
+    "jest.config.js"
   ],
   "compilerOptions": {
-    "module": "ESNEXT",
+    "module": "commonjs",
     "target": "es5",
-    "lib": ["es2015", "es2016"],
+    "lib": ["es2017", "es7", "es6", "dom"],
     "outDir": "public",
     "declaration": true,
     "baseUrl": "src",
+    "esModuleInterop": true,
     "checkJs": false,
     "sourceMap": true,
     "removeComments": true,
@@ -25,7 +29,6 @@
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "typeRoots": ["./node_modules/@types"],
     "importHelpers": true,
     "reactNamespace": "",
