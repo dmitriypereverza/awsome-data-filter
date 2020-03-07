@@ -63,7 +63,7 @@ import {
   matchText, 
   and,
   equalProp
-} from "awsome-ui-filter";
+} from "awsome-data-filter";
 
 const filter = buildFilter({
     ruleConfig: {
@@ -95,7 +95,7 @@ import {
   matchText, 
   or,
   equalProp
-} from "awsome-ui-filter";
+} from "awsome-data-filter";
 
 const filter = buildFilter({
     ruleConfig: {
@@ -187,7 +187,7 @@ import {
   elementField, 
   filterField, 
   matchText, 
-} from "awsome-ui-filter";
+} from "awsome-data-filter";
 
 const filter = buildFilter({
     traversalConfig: {
@@ -249,7 +249,7 @@ import {
   elementField, 
   filterField, 
   matchText, 
-} from "awsome-ui-filter";
+} from "awsome-data-filter";
 
 const filter = buildFilter({
     traversalConfig: {
