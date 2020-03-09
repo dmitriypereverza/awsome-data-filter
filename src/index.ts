@@ -61,8 +61,8 @@ export interface TraversalConfigInterface {
 }
 
 export interface RuleConfigInterface {
-  elementFilterFunc?: FilterFuncInterface;
-  groupFilterFunc?: FilterFuncInterface;
+  elementFilter?: FilterFuncInterface;
+  groupFilter?: FilterFuncInterface;
 }
 
 export interface StrategiesFilterInterfaceInterface {
@@ -97,17 +97,17 @@ export const constValue = <T>(value: T): ValueGetterInterface<T> => {
 
 export function buildFilter({
   filterStrategy = standardStrategy,
-  traversalConfig = {
+  traversal = {
     setChildrenFunc: group => group,
     setGroupsFunc: group => group,
     getChildrenFunc: () => [],
     getGroupsFunc: () => [],
   },
-  ruleConfig,
+  rules,
 }: {
   filterStrategy?: StrategiesFilterInterfaceInterface;
-  traversalConfig?: TraversalConfigInterface;
-  ruleConfig: RuleConfigInterface;
+  traversal?: TraversalConfigInterface;
+  rules: RuleConfigInterface;
 }): FilterFunctionInterface {
   return (filter, data) => {
     const {
@@ -115,20 +115,20 @@ export function buildFilter({
       getGroupsFunc,
       setChildrenFunc,
       setGroupsFunc,
-    } = traversalConfig;
+    } = traversal;
 
-    const { elementFilterFunc, groupFilterFunc } = ruleConfig;
+    const { elementFilter, groupFilter } = rules;
 
     const applyGroupFilter = (filter =>
-      groupFilterFunc
+      groupFilter
         ? (data, defaultValue = undefined) =>
-            groupFilterFunc(filter, data, defaultValue)
+            groupFilter(filter, data, defaultValue)
         : null)(filter);
 
     const applyElementFilter = (filter =>
-      elementFilterFunc
+      elementFilter
         ? (data, defaultValue = undefined) =>
-            elementFilterFunc(filter, data, defaultValue)
+            elementFilter(filter, data, defaultValue)
         : null)(filter);
 
     const isGroupFilterIsActive =

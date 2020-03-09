@@ -66,8 +66,8 @@ import { and } from "awsome-data-filter/conditions";
 
 
 const filter = buildFilter({
-    ruleConfig: {
-      elementFilterFunc: and([
+    rules: {
+      elementFilter: and([
         matchText(filterField("searchText"), elementField("name")),
         equalProp(filterField("age"), elementField("age")),
       ]),
@@ -98,8 +98,8 @@ import { matchText, equalProp } from "awsome-data-filter/rules";
 import { or } from "awsome-data-filter/conditions";
 
 const filter = buildFilter({
-    ruleConfig: {
-      elementFilterFunc: or([
+    rules: {
+      elementFilter: or([
         matchText(filterField("searchText"), elementField("name")),
         equalProp(filterField("age"), elementField("age")),
       ]),
@@ -180,7 +180,7 @@ const dataList = [
 ];
 ```
 
-В таком случае можно передать в конфиг фильтра информацию об обходе данной структуры объекта `traversalConfig`: 
+В таком случае можно передать в конфиг фильтра информацию об обходе данной структуры объекта `traversal`: 
 
 ```javascript
 import { 
@@ -191,14 +191,14 @@ import {
 import { matchText } from "awsome-data-filter/rules";
 
 const filter = buildFilter({
-    traversalConfig: {
+    traversal: {
       getChildrenFunc: group => group.list, // как получить конечные элементы
       setChildrenFunc: (group, list) => ({ ...group, list }), // как записать конечные элементы в группу
       getGroupsFunc: group => group.groups, // как получить вложенные группы
       setGroupsFunc: (group, groups) => ({ ...group, groups }), // как записать вложенные группы
     },
-    ruleConfig: {
-      elementFilterFunc: matchText(filterField("searchText"), elementField("name")),
+    rules: {
+      elementFilter: matchText(filterField("searchText"), elementField("name")),
     },
   });
 
@@ -239,8 +239,8 @@ console.log(groups);
 //]
 ```
 
-До этого момента передавался только `elementFilterFunc` параметр, который отвечает за правила фильтрации 
- элементов. Также есть `groupFilterFunc` для групп.
+До этого момента передавался только `elementFilter` параметр, который отвечает за правила фильтрации 
+ элементов. Также есть `groupFilter` для групп.
 
 ```javascript
 import { 
@@ -251,15 +251,15 @@ import {
 import { matchText } from "awsome-data-filter/rules";
 
 const filter = buildFilter({
-    traversalConfig: {
+    traversal: {
       getChildrenFunc: group => group.list, // как получить конечные элементы
       setChildrenFunc: (group, list) => ({ ...group, list }), // как записать конечные элементы в группу
       getGroupsFunc: group => group.groups, // как получить вложенные группы
       setGroupsFunc: (group, groups) => ({ ...group, groups }), // как записать вложенные группы
     },
-    ruleConfig: {
-      elementFilterFunc: matchText(filterField("searchText"), elementField("name")),
-      groupFilterFunc: matchText(filterField("groupName"), elementField("groupName")),
+    rules: {
+      elementFilter: matchText(filterField("searchText"), elementField("name")),
+      groupFilter: matchText(filterField("groupName"), elementField("groupName")),
     },
   });
 
