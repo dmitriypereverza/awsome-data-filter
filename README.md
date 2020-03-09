@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dmitriypereverza/awsome-data-filter.svg?branch=master)](https://travis-ci.org/dmitriypereverza/awsome-data-filter)
+
 ### Фильтрация таблицных данных 
 
 Часто ли вам приходилось писать обработчики фильтрации для ваших таблиц? Правила могут повторяться, данные изменяться и чем больше контролов фильтра будет повляться, тем сложнее и неустойчивее будет код обработчика.
