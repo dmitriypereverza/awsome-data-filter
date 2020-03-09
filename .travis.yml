@@ -1,7 +1,7 @@
 language: node_js
 cache: npm
 node_js:
-  - node
+  - 12
 git:
   depth: 5
 jobs:
