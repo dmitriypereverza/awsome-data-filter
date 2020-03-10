@@ -18,6 +18,7 @@ npm install awesome-data-filter
 
 yarn install awesome-data-filter
 ``` 
+
 Начнем с простого примера.
 Предположим у нас есть следующий массив пользователей.
 
@@ -46,7 +47,7 @@ const users = [
 ];
 ```
 
-И объект фильтра:
+И объект со значениями фильтра:
 
 ```javascript
 const filterValue = {
@@ -57,6 +58,14 @@ const filterValue = {
 
 Предположим на нужно найти пересечение этих правил.
 
+Используемые правила:
+ - `matchText` - поиск подстроки в целевом поле.
+ - `equalProp` - Полное совпадение значений параметров.
+
+Для получения динамических значений:
+ - `filterField` - получение свойства фильтра
+ - `elementField` - получение свойства текущего элемента списка
+
 ```javascript
 import { 
   buildFilter, 
@@ -65,7 +74,6 @@ import {
 } from "awsome-data-filter";
 import { matchText, equalProp } from "awsome-data-filter/rules";
 import { and } from "awsome-data-filter/conditions";
-
 
 const filter = buildFilter({
     rules: {
@@ -88,7 +96,15 @@ console.log(elements);
 // elements: [{ age: 23, name: "Marina Mitchell" }]
 ```
 
-Если же заменим `and` на `or` то получим объединение результатов работы 2х фильтров.
+Полученная ф-ция `filter` принимает объект со значениями фильтра, и фильтруемые данные в формате `groups` и `elements`.
+
+Так как группы обрабатываются отдельно от элементов они вынесены в отдельное поле. Внутри групп также могут находиться элементы.
+
+![](https://habrastorage.org/webt/ff/0h/d1/ff0hd1m-m9wk2gmemzlfg_qjdem.png)
+
+В данном случае, так как у нас плоский список элементов, передаем только `elements`.
+
+Если же заменим `and` на `or` то получим объединение результатов работы 2х правил.
 
 ```javascript
 import { 
@@ -134,10 +150,10 @@ console.log(elements);
 // ]
 ```
 
-Благодаря функциям `filterField`, `elementField` и `constValue` мы можем динамически передавать параметры в созданные правила.
+Благодаря функциям `filterField`, `elementField` мы можем динамически передавать параметры в созданные правила.
 
-Условия могут вкладываться друг в друга ``or(..., [and([..., ...]), or([..., ...])])``
-
+Так же есть ф-ция `constValue` для передачи константных значений.
+Условия могут вкладываться друг в друга ``or(..., matchText, [and([..., matchText, ...]), or([..., ...])])``
 
 Также фильтр может работать с вложенными элементами и группами. Рассмотрим на примере ниже:
 
@@ -182,7 +198,7 @@ const dataList = [
 ];
 ```
 
-В таком случае можно передать в конфиг фильтра информацию об обходе данной структуры объекта `traversal`: 
+В таком случае можно передать в конфиг фильтра информацию об обходе данной структуры объекта в поле `traversal`: 
 
 ```javascript
 import { 
@@ -241,8 +257,7 @@ console.log(groups);
 //]
 ```
 
-До этого момента передавался только `elementFilter` параметр, который отвечает за правила фильтрации 
- элементов. Также есть `groupFilter` для групп.
+До этого момента передавался только `elementFilter` параметр, который отвечает за правила фильтрации элементов. Также есть `groupFilter` для групп.
 
 ```javascript
 import { 
@@ -353,7 +368,7 @@ const standardStrategy: StrategiesFilterInterfaceInterface = {
           : !isGroupFilterIsActive,
       );
     }
-    // если совпадений по элементам неть но есть по группе возвражем исходный объект
+    // если совпадений по элементам нет, но есть по группе возвращаем исходный объект
     if (!newChildren.length && getIsGroupFilterHaveMatch(group)) {
       return originalGroup;
     }
@@ -366,6 +381,7 @@ const standardStrategy: StrategiesFilterInterfaceInterface = {
     const newGroups = getGroupsFunc(group);
     const isGroupsExists = !!(newGroups && newGroups.length);
     const isElementExists = !!(newChildren && newChildren.length);
+    // если нет вложенных элементов и групп, то удаляем группу
     return isElementExists || isGroupsExists ? group : null;
   },
 };
