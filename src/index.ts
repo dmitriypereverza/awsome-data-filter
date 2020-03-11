@@ -65,7 +65,7 @@ export interface RuleConfigInterface {
   groupFilter?: FilterFuncInterface;
 }
 
-export interface StrategiesFilterInterfaceInterface {
+export interface StrategiesFilterInterface {
   groupHandler: FilterHandlerInterface;
   elementHandler: FilterHandlerInterface;
 }
@@ -105,7 +105,7 @@ export function buildFilter({
   },
   rules,
 }: {
-  filterStrategy?: StrategiesFilterInterfaceInterface;
+  filterStrategy?: StrategiesFilterInterface;
   traversal?: TraversalConfigInterface;
   rules: RuleConfigInterface;
 }): FilterFunctionInterface {

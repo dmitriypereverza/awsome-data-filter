@@ -317,7 +317,7 @@ const { elements } = filter(
 Подобные зависимости фильтрации между группами и элементами называются `стратегией фильтрации`. По умолчанию указана следующая стратегия:
 
 ```javascript
-const standardStrategy: StrategiesFilterInterfaceInterface = {
+const standardStrategy: StrategiesFilterInterface = {
   elementHandler: ({ // стратегия на обработку конечных элементов
     element,
     tools: { 

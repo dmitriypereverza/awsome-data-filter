@@ -1,6 +1,6 @@
-import { StrategiesFilterInterfaceInterface } from "../index";
+import { StrategiesFilterInterface } from "../index";
 
-const standardStrategy: StrategiesFilterInterfaceInterface = {
+const standardStrategy: StrategiesFilterInterface = {
   elementHandler: ({
     element,
     tools: { isGroupFilterIsActive, applyElementFilter },
