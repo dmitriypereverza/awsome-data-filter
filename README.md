@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/dmitriypereverza/awsome-data-filter.svg?branch=master)](https://travis-ci.org/dmitriypereverza/awsome-data-filter)
 
-### Фильтрация таблицных данных 
+### Фильтрация табличных данных 
 
 Часто ли вам приходилось писать обработчики фильтрации для ваших таблиц? Правила могут повторяться, данные изменяться и чем больше контролов фильтра будет повляться, тем сложнее и неустойчивее будет код обработчика.
 
@@ -340,7 +340,7 @@ console.log(groups);
 Подобные зависимости фильтрации между группами и элементами называются `стратегией фильтрации`. По умолчанию указана следующая стратегия:
 
 ```javascript
-const standardStrategy: StrategiesFilterInterfaceInterface = {
+const standardStrategy: StrategiesFilterInterface = {
   elementHandler: ({ // стратегия на обработку конечных элементов
     element,
     tools: { 

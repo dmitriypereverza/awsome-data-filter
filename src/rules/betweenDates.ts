@@ -10,7 +10,10 @@ export const betweenDates = (
     const currentDateValue = targetDate({ filter, element });
     const filterDatesValue = filterDates.map(el => el({ filter, element }));
 
-    if (!currentDateValue.isValid() || filterDatesValue.some(el => !el.isValid())) {
+    if (
+      !currentDateValue.isValid() ||
+      filterDatesValue.some(el => !el.isValid())
+    ) {
       return undefined;
     }
     const fromFilterDate = filterDatesValue[0];
